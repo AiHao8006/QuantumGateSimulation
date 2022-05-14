@@ -137,7 +137,7 @@ class Tomo(QuantumOptics):      # physical_process：输入初态，输出密度
             sum_M_Mdag += Mi @ (Mi.transpose().conj())
             sum_Tr_M2 += abs(np.trace(Mi)) ** 2
         fidelity = (np.trace(sum_M_Mdag) + sum_Tr_M2) / self.rho_dim / (self.rho_dim + 1)
-        print('\nFidelity:', round(abs(fidelity), 5))       # final print
+        # print('\nFidelity:', round(abs(fidelity), 5))       # final print
 
         return fidelity
 
