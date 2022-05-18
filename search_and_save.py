@@ -10,6 +10,7 @@ dim = 3
 
 def tomo_one_time_t(t):
     solver = solve_SE(dim=dim)
+    solver.t_span = np.arange(0, 1, 0.0001)
     tomo = Tomo(None, dim=2, saving=True, calculating_in_subspace=True, dim_tot=dim, mode_num_added=1)
 
     solver.add_modulations = [[PulseShapeBox.square, [6400 - 5790, 0.5 - t, 0.5 + t], solver.adag_a[0]]]
@@ -32,7 +33,7 @@ def tomo_one_time_t(t):
     tomo.chi_mat()
     Fid = tomo.fidelity(tomo.U0)
 
-    print("time: {}~{}; fidelity:{}.".format(np.around(0.5-tau, 4), np.around(0.5+tau, 4), np.around(Fid, 5)))
+    print("time: {}~{}; fidelity:{}.".format(np.around(0.5-t, 4), np.around(0.5+t, 4), np.around(Fid, 5)))
 
     # Fid = 0
 
@@ -44,10 +45,10 @@ def tomo_one_time_t(t):
 
 
 if __name__ == '__main__':
-    p = mp.Pool(6)
+    p = mp.Pool(mp.cpu_count())     # to use max cpu num
     results = []
-    for i in range(30):
-        tau = 0.2 + i / 1000
+    for i in range(100):
+        tau = 0.205 + i / 10000
         result = p.apply_async(tomo_one_time_t, args=(tau,))
         results.append(result)
     p.close()
