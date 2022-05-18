@@ -96,7 +96,7 @@ class solve_SE(QuantumOptics):
 
         plot_list = np.real(self.saved_psi_t_solved * self.saved_psi_t_solved.conj())
         if show_plot_button:
-            print(np.around(plot_list[-1, :], 5))
+            # print(np.around(plot_list[-1, :], 5))
             plt.plot(self.t_span, np.real(self.saved_psi_t_solved * self.saved_psi_t_solved.conj()))
             plt.show()
 
@@ -106,7 +106,15 @@ class solve_SE(QuantumOptics):
         theta1 = theta2 = 0
 
         if self.gate_type == 'iSWAP':
-            theta2 = np.angle(self.solve_ode(self.state([0, 1, 0]))[1, 0]) - np.angle([1j]).item()      # 解1得2
-            theta1 = np.angle(self.solve_ode(self.state([0, 0, 1]))[2, 0]) - np.angle([1j]).item()
+            psi_f = self.solve_ode(self.state([0, 1, 0]))
+            theta2 = np.angle(psi_f.reshape(-1)[np.argmax(abs(psi_f))]) - np.angle([1j]).item()         # 解1得2
+            psi_f = self.solve_ode(self.state([0, 0, 1]))
+            theta1 = np.angle(psi_f.reshape(-1)[np.argmax(abs(psi_f))]) - np.angle([1j]).item()
+
+        if self.gate_type == 'CZ':
+            psi_f = self.solve_ode(self.state([0, 1, 0]))
+            theta1 = np.angle(psi_f.reshape(-1)[np.argmax(abs(psi_f))])         # 解1得2
+            psi_f = self.solve_ode(self.state([0, 0, 1]))
+            theta2 = np.angle(psi_f.reshape(-1)[np.argmax(abs(psi_f))])
 
         return theta1, theta2

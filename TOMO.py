@@ -5,12 +5,13 @@ from QuantumOptics import QuantumOptics
 
 
 class Tomo(QuantumOptics):      # physical_process：输入初态，输出密度矩阵
-    def __init__(self, physical_process, dim=2, mode_num=2, saving=False,
+    def __init__(self, physical_process, dim=2, mode_num=2, saving=False, print_or_not=False,
                  calculating_in_subspace=False, dim_tot=None, mode_num_added=None):
         super(Tomo, self).__init__(dim=dim, mode_num=mode_num)
 
         self.rho_dim = dim ** mode_num
         self.saving = saving
+        self.print_or_not = print_or_not
         self.physical_process = physical_process
 
         self.calculating_in_subspace = calculating_in_subspace
@@ -77,10 +78,11 @@ class Tomo(QuantumOptics):      # physical_process：输入初态，输出密度
         j = a * self.rho_dim + b
         lambda_mat[j, :] = rho_final.reshape(1, -1)
 
-        # print("a,b=", bin(a)[2:], bin(b)[2:])
-        # print("rho_final=\n", np.around(rho_final, 2))
-        # print("angle= ", np.around(np.angle(rho_final.reshape(-1)[np.argmax(abs(rho_final))])/np.pi, 4), " pi")
-        # print("-"*30, "\n\n")
+        if self.print_or_not:
+            print("a,b=", bin(a)[2:], bin(b)[2:])
+            print("rho_final=\n", np.around(rho_final, 2))
+            print("angle= ", np.around(np.angle(rho_final.reshape(-1)[np.argmax(abs(rho_final))])/np.pi, 4), " pi")
+            print("-"*30, "\n\n")
 
         return lambda_mat
 
@@ -137,7 +139,9 @@ class Tomo(QuantumOptics):      # physical_process：输入初态，输出密度
             sum_M_Mdag += Mi @ (Mi.transpose().conj())
             sum_Tr_M2 += abs(np.trace(Mi)) ** 2
         fidelity = (np.trace(sum_M_Mdag) + sum_Tr_M2) / self.rho_dim / (self.rho_dim + 1)
-        # print('\nFidelity:', round(abs(fidelity), 5))       # final print
+
+        if self.print_or_not:
+            print('\nFidelity:', round(abs(fidelity), 5))       # final print
 
         return fidelity
 
@@ -160,6 +164,14 @@ class Tomo(QuantumOptics):      # physical_process：输入初态，输出密度
                            [0, 0, 1j, 0],
                            [0, 1j, 0, 0],
                            [0, 0, 0, 1]], dtype=complex)
+            self.U0 = U0
+            return U0
+
+        if gate_name == 'CZ-subspace':
+            U0 = np.array([[1, 0, 0, 0],
+                           [0, 1, 0, 0],
+                           [0, 0, 1, 0],
+                           [0, 0, 0, -1]], dtype=complex)
             self.U0 = U0
             return U0
 
