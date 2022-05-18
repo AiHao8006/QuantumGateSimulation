@@ -5,9 +5,10 @@ from Solve_SE import solve_SE
 from PulseShapes import PulseShapeBox
 
 dim = 3
+other_info = "testing CZ 1st time"
 
-solver = solve_SE(dim=dim)
-solver.add_modulations.append([PulseShapeBox.square, [6400-5790, 0.285, 0.715], solver.adag_a[0]])
+solver = solve_SE(omega=[5560, 4800, 4799.9-240], gate_type='CZ', dim=dim)
+solver.add_modulations.append([PulseShapeBox.square, [6400-5560, 0.2, 0.683], solver.adag_a[0]])
 
 theta1, theta2 = solver.phase_calibration()
 print("完成相位标定：theta1={}, theta2={}".format(np.around(theta1, 2), np.around(theta2, 2)))
@@ -21,8 +22,8 @@ def precess(psi):       # 这里相当于 physical_process（可以用主方程�
     return rho_tf
 
 
-tomo = Tomo(precess, dim=2, saving=True, calculating_in_subspace=True, dim_tot=dim, mode_num_added=1)
-tomo.generat_U0()
+tomo = Tomo(precess, dim=2, calculating_in_subspace=True, dim_tot=dim, mode_num_added=1, print_or_not=True)
+tomo.generat_U0(gate_name='CZ-subspace')
 
 if __name__ == '__main__':
     tomo.measure_mp()
@@ -33,9 +34,9 @@ if __name__ == '__main__':
 
     df = pd.DataFrame(columns=['Gate type',     'omega',        'alpha',        'g',        'Pulse on', 'Pulse shape',
                                'Pulse max',     't_i',      't_f',      'Fidelity',             'Other info'],
-                      data=[['iSWAP',            solver.omega,   solver.alpha,   solver.g,   'omega0',   'square',
-                            6400-5790,          0.285,      0.715,      np.real(Fid),           None]])
+                      data=[['CZ',            solver.omega,   solver.alpha,   solver.g,   'omega0',   'square',
+                            6400-5560,          0.2,      0.683,      np.real(Fid),           other_info]])
 
-    df_all = pd.read_excel(r"Data_saved.xlsx", index_col=False)
+    df_all = pd.read_excel(r"Data_saved_CZ.xlsx", index_col=False)
     df_all = pd.concat([df_all, df])
-    df_all.to_excel("Data_saved.xlsx", index=False)
+    df_all.to_excel("Data_saved_CZ.xlsx", index=False)
